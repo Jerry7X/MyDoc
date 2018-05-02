@@ -1,0 +1,63 @@
+rgw中的一致性
+
+
+## Atomic Put
+
+rgw对象的存储是条带化的，分为head和tail，tail部分的名字是带有随机字符，通常不会重叠。
+rgw put同名对象时会执行覆盖操作(head obj)，并且rados对单个对象的写操作提供了原子保护。
+但是原对象的tail部分如何处理呢？ 在put成功的时候，对象的tail理应被删除。
+
+put atomic以及gc就是解决该问题的，在put成功之后，根据原对象的manifest将其tail部分加入到gc。
+由gc负责删除。
+
+
+### 对象残留
+
+如果put在write head的时候失败，其tail部分将不会加入gc
+如果写入gc失败，对象仍然视为修改成功，但是原对象的tail会残留
+
+
+### 读一致性
+
+rgw中读对象操作是不经过bucket index的，直接在对象上执行。所以一致性是由rados保证的。
+
+
+## bucket index与object的一致性
+
+这里使用事务机制，在bucket index修改之前先prepare，然后修改对象，再complete index。
+不论是在第二步，还是第三步失败。bucket index中都有pending记录，rgw会读取对象信息对bucket进行修正。
+
+可以把prepare理解成事务日志。
+
+注意这显然不是二阶段提交，世上只有一种一致性协议，就是paxos。其他均是变种。
+
+在pg复制上也采用了类似机制。当副本不一致时，对比pglog可以修正这种不一致。
+在能分辨主从的地方，这实际上只是一种同步机制。
+
+
+### 多版本下的一致性
+
+多版本的一致性又略为复杂了一点，主要是因为olh的引入。
+为了解决当前版本的问题，多版本对象需要一个逻辑头。这个逻辑头(olh)还只能是一个对象（因为需要通过对象名hash找到，rgw的设计读不经过index）。
+
+并且为了与不开启多版本保持兼容，olh跟null对象还是重叠的。
+
+为了保证olh，object，bucket index的一致性。这里引入了journal，且journal是放在bucket index上的。
+显然olh上也需要那种pending的东西，从而知道需要通过journal进行修正。
+
+太复杂了是不是？
+而且绝对是有漏洞的。只能期望在没有特殊异常时其可以正常工作。
+
+举个例子，如果对象写成功，但是没有修改olh相关信息会怎么样？
+对象存在，但是没有list entry，只有instance entry。
+
+
+## 简化
+
+采用bucket index为核心的架构，读写都经过bucket index。
+head obj也不存在覆盖写。
+对象put时直接顺序写，全部写成功后更新index。老的对象仍然由gc清理。
+多版本仅仅是在bucket index加个标记的事，没有olh，没有额外的journal。
+
+但是bucket index这里需要支持事务。
+对象在写失败时仍然残留（但是对读不可见，读首先经过index）
