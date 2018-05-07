@@ -203,3 +203,5 @@ int RGWRados::follow_olh(RGWObjectCtx& obj_ctx, RGWObjState *state, rgw_obj& olh
 2，多版本相关的各种一致性保护，在极端情况下究竟是否能保证一致性？有例外场景吗？
 
 journal保证了olh对象上的执行顺序，不会出现index与olh不一致的情况。
+修改操作是成功之后才执行olh相关的操作，所以不存在olh修改成功，对象不存在的情况。
+删除操作则本身就在olh journal replay时执行，就更不存在一致性问题了。
