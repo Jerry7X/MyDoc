@@ -1,12 +1,12 @@
 一些值得改进的地方：
 
-1，使用rados存放bucket index
++ 使用rados存放bucket index
 rados对象并发粒度大，恢复粒度大，强一致性对rgw可用性造成了非常大的影响。
 
 1亿个对象的bucket，如果osd异常，可能仅写了几百个对象，但是可能有几千万key需要恢复。
 
 
-2，通过hash方式访问对象，不经过bucket index
++ 通过hash方式访问对象，不经过bucket index
 缺乏中间层，实现小文件合并(天生要求index层),对象跨pool都比较麻烦。
 
 rados对象做index层几乎不可取。并发粒度太大，性能上抗不住。
