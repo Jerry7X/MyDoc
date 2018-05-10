@@ -1,0 +1,23 @@
+bucket list
+
+## 问题
+
+1，如何通过list参数实现bucket的遍历
+    如果结果是IsTruncated,那么就会携带next_marker,从而完成遍历，直到结束。
+	如果有del也是会给客户端返回的，所以客户端可以非常方便的在原来参数的基础上，修改marker，继续执行。
+	marker就是遍历的cursor。
+	
+2，如何实现目录效果
+   在rgw中目录可能是一个对象，也可能不是。通过prefix和delimiter可以实现list目录的效果。
+   
+3，为什么unorder list不支持delimiter
+   因为delimiter会改变marker，而unorder list下改变marker会影响遍历位置。导致结果重复。
+   普通list则不存在这个问题，反正所以shard都需要执行。
+   
+
+## 优化
+
+1，显然delimiter的时候，没必要返回子目录下的key。应该在osd上就过滤掉。
+   对比频繁list的场景，这个优化还比较有价值。
+   
+2，对于需要频繁遍历key的场景，使用range index显然比hash index有利。
