@@ -53,5 +53,19 @@ rados对象做index层几乎不可取。并发粒度太大，性能上抗不住�
 这种同步方式灵活，好控制，状态维护简单，实现也相对简单(共用读写流程)
 
 
++ KV interface
++ pool，支持多引擎
+
++ 配置同步目的地
+同步主线程：
+
+<create bucket>
+<bucket write>  -> 启动子任务执行，执行完退出
+<delete bucket>
+
+datalog，bilog，entry。
+
+
+
 
 
