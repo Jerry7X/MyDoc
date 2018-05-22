@@ -1,6 +1,6 @@
 ﻿## 概述
 
-bucket list提供了遍历对象的能力，rgw以hash方式组织对象，遍历效果比较差所以在实际生产环境多推荐用户在上层使用数据库。
+bucket list提供了按前缀遍历bucket对象的能力，rgw以hash方式组织对象，遍历效果比较差，在实际生产环境多推荐用户在上层使用数据库。
 
 不推荐使用传统目录的方式使用对象存储，例如s3fs等。
   
@@ -43,7 +43,7 @@ bucket list提供了遍历对象的能力，rgw以hash方式组织对象，遍�
 
 ### instance index
     通过rgw_object_key可以找到instance key。
-	注意在没有开启多版本的时候，instance 和 list是重叠的。
+	注意在没有开启多版本的时候，instance 和 list是重叠的，或者说不存在instance index。
 	
 ## 操作
 
@@ -84,4 +84,12 @@ BI_PREFIX_CHAR \200 也是这样的。
 3. 为什么unorder list不支持delimiter
    因为delimiter会改变marker，而unorder list下改变marker会影响遍历位置。导致结果重复。
    普通list则不存在这个问题，反正所有shard都需要执行。
+   
+## 优化
+
+rgw bi设计之初肯定是没有考虑过多版本的，在引入多版本之后，整个代码变得非常复杂。
+然而多版本本身并没这么高的复杂度。处理null instance转换，olh的引入，一致性的保证等等。
+
+
+
 
