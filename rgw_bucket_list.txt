@@ -1,26 +1,87 @@
-bucket list
+﻿## 概述
+
+bucket list提供了遍历对象的能力，rgw以hash方式组织对象，遍历效果比较差所以在实际生产环境多推荐用户在上层使用数据库。
+
+不推荐使用传统目录的方式使用对象存储，例如s3fs等。
+  
+## 数据组织
+    示例:
+	> assert.h(olh， plain entry)  
+	assert.hv912i.Hfas8eS9OX5qEFEoReaAFHsVuR0An2（list index）  
+	assert.hv913iy0HzZ-9baP2nVsY0Bit.uYgqe-zXfLC  
+	assert.hv914i（null instance list index）  
+	0_00000000001.35.2(bi log)  
+	0_00000000002.36.3  
+	0_00000000003.37.2  
+	0_00000000004.38.3  
+	0_00000000005.39.12  
+	0_00000000006.41.2  
+	0_00000000007.42.3  
+	0_00000000008.43.11  
+	1000_assert.hi（null instance）  
+	1000_assert.hi.Hfas8eS9OX5qEFEoReaAFHsVuR0An2（instance）  
+	1000_assert.hiy0HzZ-9baP2nVsY0Bit.uYgqe-zXfLC  
+	1001_assert.h（olh entry，olh operation log就在这里）
+	
+### bi中的key
+    key分为如下几种:
+	>static string bucket_index_prefixes[] = { "", /* special handling for the objs list index */
+                                          "0_",     /* bucket log index */
+                                          "1000_",  /* obj instance index */
+                                          "1001_",  /* olh data index */
+
+                                          /* this must be the last index */
+                                          "9999_",};
+										  
+    > BI_PREFIX_CHAR										 
+										  
+	为什么在key中搞这些前缀呢？主要是为了过滤，缩小查找数据量。
+										
+     										
+### list index
+    用于bucket list，注意list index是不带前缀的. 不含BI_PREFIX_CHAR
+
+### instance index
+    通过rgw_object_key可以找到instance key。
+	注意在没有开启多版本的时候，instance 和 list是重叠的。
+	
+## 操作
+
+   list的一些处理：
+   * 对于含有ver marker标记，说明该key仅仅是多版本的对象marker，不含实际对象实例，因而需要skip掉。
+   * 对于非versioned list，过滤掉非current的index key。
+   * list过滤掉BI_PREFIX_CHAR的key，这些要么是instance，要么是bilog。
+   
+### 遍历的实现
+   遍历实现主要依赖如下几个变量:
+   * marker
+   * IsTruncated
+    
+   marker就是遍历的cursor。IsTruncated确定遍历是否结束
+   **此处请对照代码**
+	
+2. 如何实现目录效果
+   目录实现依赖于：
+   * prefix
+   * delimiter
+   
+   prefix充当目录名，delimiter也就是'/'，分隔目录与子目录。
+   
+   带delimiter遍历时有个优化，就是不去遍历子目录的内容，因为带了delimiter则不需要返回子目录内容。
+   **此处请对照代码**
 
 ## 问题
 
-1，如何通过list参数实现bucket的遍历
-    如果结果是IsTruncated,那么就会携带next_marker,从而完成遍历，直到结束。
-	如果有del也是会给客户端返回的，所以客户端可以非常方便的在原来参数的基础上，修改marker，继续执行。
-	marker就是遍历的cursor。
-	
-	确定结束的方式：
-	只要有一个shard没有遍历到末尾，说明遍历尚未结束。
-	
-2，如何实现目录效果
-   在rgw中目录可能是一个对象，也可能不是。通过prefix和delimiter可以实现list目录的效果。
-   
-3，为什么unorder list不支持delimiter
+1，"\0i"不是字符串结束了么，为什么rados listomapkeys还能看到instance等信息? "\u0000"又是怎么产生的？
+escape_str中做了转化，把\000 转化为\u0000.这样就可以正常显示了。
+\u0000长度是1，printf的时候却什么都不显示.
+BI_PREFIX_CHAR \200 也是这样的。
+
+
+2，为什么string append "1000". 在gdb中显示是\061\060这样的？
+
+
+3. 为什么unorder list不支持delimiter
    因为delimiter会改变marker，而unorder list下改变marker会影响遍历位置。导致结果重复。
-   普通list则不存在这个问题，反正所以shard都需要执行。
-   
+   普通list则不存在这个问题，反正所有shard都需要执行。
 
-## 优化
-
-1，显然delimiter的时候，没必要返回子目录下的key。应该在osd上就过滤掉。
-   对比频繁list的场景，这个优化还比较有价值。
-   
-2，对于需要频繁遍历key的场景，使用range index显然比hash index有利。
