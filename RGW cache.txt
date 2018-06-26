@@ -1,0 +1,4 @@
+1,RGW Cache是给Metadata,System object使用的.
+   bucket info和user info的缓冲也是在rgw cache开启的时候才有用。
+   
+2,Metadata在rgw中采用了多版本比较？ why？ 读的时候也如此

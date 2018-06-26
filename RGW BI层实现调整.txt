@@ -1,0 +1,173 @@
+## 价值说明
+
+当前rgw的bi层是偏弱化的，主要是为了实现bucket list功能。数据的读请求仍然是直接到对象的。
+这里有几个问题：
+1，数据一致性，多版本一致性实现复杂。
+   由于数据的读仍然以object为准，所以object上存储了对象的元数据，但是bucket list也需要展示部分元数据，
+为了保证一致性，rgw使用了prepare/complete机制来保证一致性，但是多版本下该问题进一步复杂化，需要保证olh，object，bi entry的一致性。
+设计上这里仍然存在一些一致性问题，参见#415。
+
+2, 读写流程的影响
+   由于要直接通过object定位到对象，所以logic head成为必须，在对象覆盖写场景下，需要对其做特殊处理。写入流程复杂。
+
+3，不方便实现bucket跨pool，跨集群等特性
+   在当前框架下，实现bucket跨pool需要在原始pool保留一个logic head类似方案（https://etherpad.net/p/multiple-data-pool-support-for-a-bucket）。
+   这种方案下data pool需要存储大量小文件（head对象的大小也不好配置，配置大了则data pool难以放下，小了则1MB文件可能涉及多次IO，影响性能）。
+
+4，不方便实现文件去重
+   文件去重，CDP等功能其实都不涉及数据拷贝。只需拷贝key即可。要实现这种效果，可以引入中间层。
+   md5到文件实体的映射。对于开启去重，CDP功能的bucket，可以引入这一层，以实现对象的共享。（引用计数这块需考虑一致性）
+   
+5, 小文件合并
+   小文件合并必然引入索引层，索引层如果仍然使用logic head存，那根本没解决第一个data pool海量文件问题。
+   内部使用多版本机制+ lc可以很方便的实现大文件的gc。
+
+6，替换使用其他DB存储BI
+   
+
+## 改造方案
+
+rgw元数据以bi为准，所有请求先经过bi。
+
+内部使用多版本机制实现一致性。
+
+对象的属性信息也存放到BI中，以减少读的次数。
+元数据存储策略暂时不变。
+
+s3看到的对象
+{name, instance}
+bi存储对象
+{
+name,
+[ {instance3, obj_name},
+  {instance2, obj_name},
+  {instance1, obj_name},
+  {null, obj_name}
+]
+}
+
+即便是null instance，raods中的obj name也不一样。
+obj_name的一种形式如下：
+name + md5 (null同名去重？)
+
+同样支持删除标记，支持永久删除，永久删除可由lc等来实现（gc似乎不需要了）。
+
+针对上述问题：
+1，一致性保证
+   写入BI成功才算真的成功，raods object上不再保存元数据。多版本同样如此。
+
+2，读写流程
+   对于rados而言，每次都是写入新对象，直接顺序写即可，manifest也可以去掉，名字按照stripe计算。
+   
+3，在bi上增加实际存储的pool来支持bucket跨pool。
+   修改原有的placement方案。placement就是存储策略，支持EC，多副本等。但是一个placement中只存在一种类型的
+   的pool。还有一点就是要把data pool的状态管理起来，使用率，状态等等。
+   
+4，mtime等统一，bi的mtime为准
+
+## 关键设计
+
+
+### BI数据结构
+
+#define RGW_BUCKET_DIRENT_FLAG_DELETE        0x1    /* is deleted */
+#define RGW_BUCKET_DIRENT_FLAG_DELETE_MARKER 0x2    /* delete marker */
+
+//XRCM: not not name rgw_bi_entry? because already used as rgw_cls_bi_entry
+struct rgw_obj_instance_entry {
+  cls_rgw_obj_key instance;
+  uint32_t epoch;
+  //where we put the object
+  string cluster；
+  uint64_t pool;
+  //stat
+  uint16_t flags; 
+  
+  //rados object
+  string instance_storage_name;
+  struct rgw_bucket_dir_entry_meta meta;
+  
+}
+
+struct rgw_obj_entry {
+  string name;
+  //record the epoch change, only local zone use it.
+  uint32_t epoch;
+  //for multi version to change obj but not instance
+  //这点很奇怪，原以为是直接作用于当前版本的，实际上是修改属性会增加新的版本！！！（这种去重是非常必要的）
+  map<string, bufferlist> attrs;
+  //maybe some null instance there, delete instance,
+  //lc will delete the instance, other op just set flag or add new instance.
+  vector<rgw_obj_instance_entry> instances;
+}
+
+
+struct rgw_bucket_dir_entry_meta {
+  uint8_t category; //RGWObjCategory
+  uint64_t size;
+  ceph::real_time mtime;
+  string etag;
+  string owner;
+  string owner_display_name;
+  string content_type;
+  uint64_t accounted_size;
+  //object attr
+  uint64_t stripe_size;
+  map<string, bufferlist> attrs;
+}
+
+
+struct rgw_bi_log_entry {
+  string id;
+  string object;
+  string instance;
+  ceph::real_time timestamp;
+  RGWModifyOp op;
+  uint16_t bilog_flags;
+}
+
+### 读写流程改造
+
+
+  接口覆盖write_meta, delete_obj, get_object_state。
+  
+  删除rados object成功，再删除bi entry。
+  
+get的影响：
+  get_object_state 不支持prefetch_data,仅读取某个instance元数据。
+  
+  get不指定instance即为获取最新的instance，get指定instance则获取对应的信息。
+  指定instance时，可以指定null，null与empty是两种情况。null可能存在多个，但是读取的总是最近的一个。
+
+### multipart的实现
+
+### list实现
+   current这个标记确实很奇怪，其实最新的版本必然是current。
+
+### 双活
+
+双活这块也有影响，但是相对还好，主要是bilog的内容会做调整。同步不再关心olh。
+每次同步都是一个object instance，object instance基于时间排序，在写入instance对时间做检查，
+如果后写的对象时间比之前的小，说明时间有跳变，那么对时间进行修正。但是多站点之间时间不同步这里仍然有缺陷。
+
+setattr以前有个问题就是合并的时候有点尴尬，现在没问题了，反正就是改属性，没必要与其他操作合并。
+存在一点逻辑同步：
+1，如果object_key不存在，则创建，然后写入obj instance
+2，如果object instance全部被删除了，则可以删除object key
+3，delete marker很特殊，它是一个instance，但同时携带删除标记。
+
+## 升级
+可能考虑提供转换工具
+
+### 性能分析
+
+读性能会变差，目前的读可以一次性把属性和数据读取出来。
+修改后读操作需要先读BI，然后读取数据。（可以考虑缓存属性）
+
+写操作理论上会变好。bi操作可减少一次。
+
+多版本读性能可能略下降，主要是bi的并发能力弱于object head。
+多版本的写性能应该好不少，少了olh的一坨操作。（poc可增加该场景）
+
+### 问题
+1， acl等信息如何转化为json格式进行同步？

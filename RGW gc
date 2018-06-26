@@ -1,0 +1,6 @@
+GC有三种场景涉及：
+1，覆盖put的时候
+2，delete obj
+3，abort multipart
+
+其中1，2两种情况只有超过HEAD部分才会用gc来清除

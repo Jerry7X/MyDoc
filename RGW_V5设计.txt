@@ -1,0 +1,52 @@
+# 设计目标
+
+ceph rgw存在如下问题：
+1. BI使用rados对象保存，不支持增量恢复，在故障恢复时影响可用性
+2. 不能很好的支持bucket跨故障域和多集群，异构集群等，bucket与pool解耦。
+3. 海量小文件直接使用rados存储代价太大。
+4，多版本，multisite等特性复杂度不合适。
+5，无法支持高效的list操作
+6，rgw put写放大。
+
+设计目标即解决上述问题，同时为以后的扩展打下基础。
+
+支持StorageClass
+
+# 设计方案
+
+* 将元数据独立出来，存到数据库中，这里对数据库一些要求，后面会列出来。
+* 增加集群状态管理这一层，让rgw感知集群状态，以便在故障时灵活处理。
+* 将多版本与multisite纳入设计考虑范围。
+* 将s3解析层与执行层分开。
+
+对数据库要求：
+1. 支持compare write
+2. 支持自增字段
+3. 支持create exclusive
+4，支持range query
+5，支持持久化
+6，支持数据规模100亿+
+7. 性能尽可能的好，高并发，低延时（默认使用SSD）
+
+# 实现选型
+
+1. 数据库使用mongodb
+2. 开发基于ceph框架/重新开发
+3，仍然使用rgw的机制，将bs的数据存到mongodb？调优rgw cache。
+   重构rgw多版本机制，重构rgw同步逻辑。支持在线reshard？调整multisite基于bs的同步逻辑？
+   
+## 分二步执行
+1，调整rgw对rados的依赖，将接口标准化。独立rgw工程。
+    cls_log:主要是给datalog和sync error log用。cls的主要作用在于实现了一个按时间单调递增的序。
+	        可以根据时间来trim。
+    cls_timeindex_list: 这个主要是给swift的obj expire用的。为啥不直接打在bi上，bi数量过于庞大？
+	cls_statelog:这玩意好像只有copy的时候使用，但是用来干嘛？只看到有标记状态，修改状态。仅仅是根据任何状态的功能？
+	cls_lock:这个gc，生命周期并发保护的时候会用。为啥不直接使用对象的lock呢？不是一样么？
+	ref_count的作用
+	
+	
+2，引入db解决rados增量恢复问题，或者基于rados解决该问题？引入新的rados接口，机制？
+3，bilog能否批量写入？
+   
+
+

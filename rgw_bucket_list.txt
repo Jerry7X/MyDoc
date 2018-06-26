@@ -53,7 +53,7 @@ bucket list提供了按前缀遍历bucket对象的能力，rgw以hash方式组�
    * list过滤掉BI_PREFIX_CHAR的key，这些要么是instance，要么是bilog。
    
 ### 遍历的实现
-   遍历实现主要依赖如下几个变量:
+   遍历实现主要依赖如下参数:
    * marker
    * IsTruncated
     
@@ -61,7 +61,7 @@ bucket list提供了按前缀遍历bucket对象的能力，rgw以hash方式组�
    **此处请对照代码**
 	
 2. 如何实现目录效果
-   目录实现依赖于：
+   目录实现依赖于参数：
    * prefix
    * delimiter
    
@@ -84,6 +84,8 @@ BI_PREFIX_CHAR \200 也是这样的。
 3. 为什么unorder list不支持delimiter
    因为delimiter会改变marker，而unorder list下改变marker会影响遍历位置。导致结果重复。
    普通list则不存在这个问题，反正所有shard都需要执行。
+   
+4，next_marker没有赋值？
    
 ## 优化
 

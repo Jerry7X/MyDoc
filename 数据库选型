@@ -12,3 +12,6 @@ http://wetest.qq.com/lab/view/258.html
 mongodb开源版本不支持中文分词，4.0才支持事务，还没出来。
 es不支持事务，且其设计对于排序不是很好(hash shard)。
 foundationDB 是一个备选
+
+各种数据库介绍：
+https://m.aliyun.com/yunqi/articles/85619

@@ -1,2 +1,6 @@
 foundationdb：
 https://github.com/apple/foundationdb/blob/master/documentation/sphinx/source/cap-theorem.rst
+
+Consistency: A read sees *all* previously completed writes.
+Availability: Reads and writes *always* succeed.
+Partition tolerance: Guaranteed properties are maintained even when network failures prevent some machines from communicating with others.

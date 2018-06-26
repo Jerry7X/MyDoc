@@ -1,0 +1,12 @@
+问题：
+1，浏览器等应用如何根据客户端ip地址找到对应的数据服务地址？
+
+   支持把bucket放在一个zone，用户向其中写入时，自动根据bucket的location来选择读写位置。
+   不支持bucket重名。
+   根据ip地址显然是不靠谱的。需要考虑的是location与ip地址的关系如何反应给客户端？
+   
+2，meta只能与master同步获取，则所有zone必须与master连通
+   sync_from仅定义数据同步，meta是在全局同步的。
+3，支持添加sync_from,移除sync_from
+4， 支持配置bucket数据不在zone之间同步
+5，支持配置bucket支持分发
