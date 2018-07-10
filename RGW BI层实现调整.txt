@@ -4,25 +4,30 @@
 ÕâÀïÓĞ¼¸¸öÎÊÌâ£º
 1£¬Êı¾İÒ»ÖÂĞÔ£¬¶à°æ±¾Ò»ÖÂĞÔÊµÏÖ¸´ÔÓ¡£
    ÓÉÓÚÊı¾İµÄ¶ÁÈÔÈ»ÒÔobjectÎª×¼£¬ËùÒÔobjectÉÏ´æ´¢ÁË¶ÔÏóµÄÔªÊı¾İ£¬µ«ÊÇbucket listÒ²ĞèÒªÕ¹Ê¾²¿·ÖÔªÊı¾İ£¬
-ÎªÁË±£Ö¤Ò»ÖÂĞÔ£¬rgwÊ¹ÓÃÁËprepare/complete»úÖÆÀ´±£Ö¤Ò»ÖÂĞÔ£¬µ«ÊÇ¶à°æ±¾ÏÂ¸ÃÎÊÌâ½øÒ»²½¸´ÔÓ»¯£¬ĞèÒª±£Ö¤olh£¬object£¬bi entryµÄÒ»ÖÂĞÔ¡£
+ÎªÁË±£Ö¤Ò»ÖÂĞÔ£¬rgwÊ¹ÓÃÁËprepare/complete»úÖÆ¡£µ«ÊÇ¶à°æ±¾ÏÂ¸ÃÎÊÌâ½øÒ»²½¸´ÔÓ»¯£¬ĞèÒª±£Ö¤olh£¬object£¬bi entryµÄÒ»ÖÂĞÔ¡£
 Éè¼ÆÉÏÕâÀïÈÔÈ»´æÔÚÒ»Ğ©Ò»ÖÂĞÔÎÊÌâ£¬²Î¼û#415¡£
+   olh£¬null instanceÓëolh»ìÔÚÒ»Æğ£¬Âß¼­¸´ÔÓ¡£
 
-2, ¶ÁĞ´Á÷³ÌµÄÓ°Ïì
-   ÓÉÓÚÒªÖ±½ÓÍ¨¹ıobject¶¨Î»µ½¶ÔÏó£¬ËùÒÔlogic head³ÉÎª±ØĞë£¬ÔÚ¶ÔÏó¸²¸ÇĞ´³¡¾°ÏÂ£¬ĞèÒª¶ÔÆä×öÌØÊâ´¦Àí¡£Ğ´ÈëÁ÷³Ì¸´ÔÓ¡£
+2£¬²»·½±ãÊµÏÖbucket¿çpool£¬¿ç¼¯ÈºµÈÌØĞÔ£¬²»ÀûÓÚ¶ÔDataStorage²ã½øĞĞ³éÏó¡£
 
-3£¬²»·½±ãÊµÏÖbucket¿çpool£¬¿ç¼¯ÈºµÈÌØĞÔ
    ÔÚµ±Ç°¿ò¼ÜÏÂ£¬ÊµÏÖbucket¿çpoolĞèÒªÔÚÔ­Ê¼pool±£ÁôÒ»¸ölogic headÀàËÆ·½°¸£¨https://etherpad.net/p/multiple-data-pool-support-for-a-bucket£©¡£
    ÕâÖÖ·½°¸ÏÂdata poolĞèÒª´æ´¢´óÁ¿Ğ¡ÎÄ¼ş£¨head¶ÔÏóµÄ´óĞ¡Ò²²»ºÃÅäÖÃ£¬ÅäÖÃ´óÁËÔòdata poolÄÑÒÔ·ÅÏÂ£¬Ğ¡ÁËÔò1MBÎÄ¼ş¿ÉÄÜÉæ¼°¶à´ÎIO£¬Ó°ÏìĞÔÄÜ£©¡£
 
-4£¬²»·½±ãÊµÏÖÎÄ¼şÈ¥ÖØ
-   ÎÄ¼şÈ¥ÖØ£¬CDPµÈ¹¦ÄÜÆäÊµ¶¼²»Éæ¼°Êı¾İ¿½±´¡£Ö»Ğè¿½±´key¼´¿É¡£ÒªÊµÏÖÕâÖÖĞ§¹û£¬¿ÉÒÔÒıÈëÖĞ¼ä²ã¡£
-   md5µ½ÎÄ¼şÊµÌåµÄÓ³Éä¡£¶ÔÓÚ¿ªÆôÈ¥ÖØ£¬CDP¹¦ÄÜµÄbucket£¬¿ÉÒÔÒıÈëÕâÒ»²ã£¬ÒÔÊµÏÖ¶ÔÏóµÄ¹²Ïí¡££¨ÒıÓÃ¼ÆÊıÕâ¿éĞè¿¼ÂÇÒ»ÖÂĞÔ£©
+3£¬Ìæ»»Ê¹ÓÃÆäËûDB´æ´¢BI£¬ÒÔ½â¾örados object»Ö¸´µ¼ÖÂÒµÎñÖĞ¶ÏµÄÎÊÌâ
+
+4, ¶ÁĞ´Á÷³ÌµÄÓ°Ïì
+   ÓÉÓÚÒªÖ±½ÓÍ¨¹ıobject¶¨Î»µ½¶ÔÏó£¬ËùÒÔlogic head³ÉÎª±ØĞë£¬ÔÚ¶ÔÏó¸²¸ÇĞ´³¡¾°ÏÂ£¬ĞèÒª¶ÔÆä×öÌØÊâ´¦Àí¡£Ğ´ÈëÁ÷³Ì¸´ÔÓ¡£
    
-5, Ğ¡ÎÄ¼şºÏ²¢
+5£¬²»·½±ãÊµÏÖÎÄ¼şÈ¥ÖØ
+   ÎÄ¼şÈ¥ÖØ£¬CDPµÈ¹¦ÄÜÔÚlogic headÏÂÊµÏÖ¸´ÔÓ£¬Í¬ÑùĞèÒª¿¼ÂÇÏà¹ØµÄÒ»ÖÂĞÔÎÊÌâ¡£
+   
+   
+   
+6, Ğ¡ÎÄ¼şºÏ²¢
    Ğ¡ÎÄ¼şºÏ²¢±ØÈ»ÒıÈëË÷Òı²ã£¬Ë÷Òı²ãÈç¹ûÈÔÈ»Ê¹ÓÃlogic head´æ£¬ÄÇ¸ù±¾Ã»½â¾öµÚÒ»¸ödata poolº£Á¿ÎÄ¼şÎÊÌâ¡£
    ÄÚ²¿Ê¹ÓÃ¶à°æ±¾»úÖÆ+ lc¿ÉÒÔºÜ·½±ãµÄÊµÏÖ´óÎÄ¼şµÄgc¡£
 
-6£¬Ìæ»»Ê¹ÓÃÆäËûDB´æ´¢BI
+
    
 
 ## ¸ÄÔì·½°¸
@@ -31,8 +36,10 @@ rgwÔªÊı¾İÒÔbiÎª×¼£¬ËùÓĞÇëÇóÏÈ¾­¹ıbi¡£
 
 ÄÚ²¿Ê¹ÓÃ¶à°æ±¾»úÖÆÊµÏÖÒ»ÖÂĞÔ¡£
 
-¶ÔÏóµÄÊôĞÔĞÅÏ¢Ò²´æ·Åµ½BIÖĞ£¬ÒÔ¼õÉÙ¶ÁµÄ´ÎÊı¡£
-ÔªÊı¾İ´æ´¢²ßÂÔÔİÊ±²»±ä¡£
+¶ÔÏóµÄÊôĞÔĞÅÏ¢Ò²´æ·Åµ½BIÖĞ£¬ÒÔ¼õÉÙ¶ÁµÄ´ÎÊı(·ñÔò¼ÈÒª¶ÁBI£¬»¹µÃ¶Árados objectÊôĞÔ)¡£
+bucket/userµÈÔªÊı¾İ´æ´¢²ßÂÔÔİÊ±²»±ä¡£
+
+ÓÅ»¯¶à°æ±¾µÄkey¹ÜÀí£¬È¥µôolhÏà¹ØÂß¼­£¬Í³Ò»·Ç¶à°æ±¾Óë¶à°æ±¾µÄ¹ÜÀí
 
 s3¿´µ½µÄ¶ÔÏó
 {name, instance}
@@ -46,15 +53,13 @@ name,
 ]
 }
 
-¼´±ãÊÇnull instance£¬raodsÖĞµÄobj nameÒ²²»Ò»Ñù¡£
-obj_nameµÄÒ»ÖÖĞÎÊ½ÈçÏÂ£º
-name + md5 (nullÍ¬ÃûÈ¥ÖØ£¿)
-
-Í¬ÑùÖ§³ÖÉ¾³ı±ê¼Ç£¬Ö§³ÖÓÀ¾ÃÉ¾³ı£¬ÓÀ¾ÃÉ¾³ı¿ÉÓÉlcµÈÀ´ÊµÏÖ£¨gcËÆºõ²»ĞèÒªÁË£©¡£
+instance³ıÁË¸ù¾İ²úÉúÊ±¼äÓĞĞòÍâ£¬»¹Ìá¹©ÁËlist keyÒÔÖ§³Ömarker·½Ê½ÅÅĞò¡£
 
 Õë¶ÔÉÏÊöÎÊÌâ£º
 1£¬Ò»ÖÂĞÔ±£Ö¤
    Ğ´ÈëBI³É¹¦²ÅËãÕæµÄ³É¹¦£¬raods objectÉÏ²»ÔÙ±£´æÔªÊı¾İ¡£¶à°æ±¾Í¬ÑùÈç´Ë¡£
+   Èç¹ûĞ´Èërados¶ÔÏó³É¹¦£¬µ«ÊÇbiĞŞ¸ÄÊ§°Ü¡£ÔòÒÆ³ırados¶ÔÏó¡£Ò»°ãÀ´Ëµ²»´æÔÚÊ§°ÜÇé¿ö£¬³ı·ÇbiÏà¹ØµÄpool×´Ì¬Òì³£¡£
+   £¨Ä¿Ç°ÕâÀïÔÚÊ§°ÜµÄÊ±ºò²¢Î´É¾³ı¶ÔÏó£©
 
 2£¬¶ÁĞ´Á÷³Ì
    ¶ÔÓÚrados¶øÑÔ£¬Ã¿´Î¶¼ÊÇĞ´ÈëĞÂ¶ÔÏó£¬Ö±½ÓË³ĞòĞ´¼´¿É£¬manifestÒ²¿ÉÒÔÈ¥µô£¬Ãû×Ö°´ÕÕstripe¼ÆËã¡£
@@ -65,70 +70,19 @@ name + md5 (nullÍ¬ÃûÈ¥ÖØ£¿)
    
 4£¬mtimeµÈÍ³Ò»£¬biµÄmtimeÎª×¼
 
+5£¬CDP¿ÉÒÔ»ùÓÚÈ¥ÖØÒÔ¼°COPYµÄË¼Â·ÊµÏÖ¡£
+
 ## ¹Ø¼üÉè¼Æ
 
 
 ### BIÊı¾İ½á¹¹
 
-#define RGW_BUCKET_DIRENT_FLAG_DELETE        0x1    /* is deleted */
-#define RGW_BUCKET_DIRENT_FLAG_DELETE_MARKER 0x2    /* delete marker */
-
-//XRCM: not not name rgw_bi_entry? because already used as rgw_cls_bi_entry
-struct rgw_obj_instance_entry {
-  cls_rgw_obj_key instance;
-  uint32_t epoch;
-  //where we put the object
-  string cluster£»
-  uint64_t pool;
-  //stat
-  uint16_t flags; 
-  
-  //rados object
-  string instance_storage_name;
-  struct rgw_bucket_dir_entry_meta meta;
-  
-}
-
-struct rgw_obj_entry {
-  string name;
-  //record the epoch change, only local zone use it.
-  uint32_t epoch;
-  //for multi version to change obj but not instance
-  //ÕâµãºÜÆæ¹Ö£¬Ô­ÒÔÎªÊÇÖ±½Ó×÷ÓÃÓÚµ±Ç°°æ±¾µÄ£¬Êµ¼ÊÉÏÊÇĞŞ¸ÄÊôĞÔ»áÔö¼ÓĞÂµÄ°æ±¾£¡£¡£¡£¨ÕâÖÖÈ¥ÖØÊÇ·Ç³£±ØÒªµÄ£©
-  map<string, bufferlist> attrs;
-  //maybe some null instance there, delete instance,
-  //lc will delete the instance, other op just set flag or add new instance.
-  vector<rgw_obj_instance_entry> instances;
-}
-
-
-struct rgw_bucket_dir_entry_meta {
-  uint8_t category; //RGWObjCategory
-  uint64_t size;
-  ceph::real_time mtime;
-  string etag;
-  string owner;
-  string owner_display_name;
-  string content_type;
-  uint64_t accounted_size;
-  //object attr
-  uint64_t stripe_size;
-  map<string, bufferlist> attrs;
-}
-
-
-struct rgw_bi_log_entry {
-  string id;
-  string object;
-  string instance;
-  ceph::real_time timestamp;
-  RGWModifyOp op;
-  uint16_t bilog_flags;
-}
+¼ò»¯Êı¾İ½á¹¹£¬È¥³ı²»ĞèÒªµÄ×Ö¶Î
 
 ### ¶ÁĞ´Á÷³Ì¸ÄÔì
 
-
+   È¥µôhead object£¬¼ò»¯manifest¡£
+   
   ½Ó¿Ú¸²¸Çwrite_meta, delete_obj, get_object_state¡£
   
   É¾³ırados object³É¹¦£¬ÔÙÉ¾³ıbi entry¡£
@@ -141,8 +95,9 @@ getµÄÓ°Ïì£º
 
 ### multipartµÄÊµÏÖ
 
+
 ### listÊµÏÖ
-   currentÕâ¸ö±ê¼ÇÈ·ÊµºÜÆæ¹Ö£¬ÆäÊµ×îĞÂµÄ°æ±¾±ØÈ»ÊÇcurrent¡£
+   current±ê¼Ç´¦Àí£¬listÅÅĞòÔÚobject instanceÄÚµÄÊµÏÖ¡£
 
 ### Ë«»î
 
@@ -150,11 +105,6 @@ getµÄÓ°Ïì£º
 Ã¿´ÎÍ¬²½¶¼ÊÇÒ»¸öobject instance£¬object instance»ùÓÚÊ±¼äÅÅĞò£¬ÔÚĞ´Èëinstance¶ÔÊ±¼ä×ö¼ì²é£¬
 Èç¹ûºóĞ´µÄ¶ÔÏóÊ±¼ä±ÈÖ®Ç°µÄĞ¡£¬ËµÃ÷Ê±¼äÓĞÌø±ä£¬ÄÇÃ´¶ÔÊ±¼ä½øĞĞĞŞÕı¡£µ«ÊÇ¶àÕ¾µãÖ®¼äÊ±¼ä²»Í¬²½ÕâÀïÈÔÈ»ÓĞÈ±Ïİ¡£
 
-setattrÒÔÇ°ÓĞ¸öÎÊÌâ¾ÍÊÇºÏ²¢µÄÊ±ºòÓĞµãŞÏŞÎ£¬ÏÖÔÚÃ»ÎÊÌâÁË£¬·´Õı¾ÍÊÇ¸ÄÊôĞÔ£¬Ã»±ØÒªÓëÆäËû²Ù×÷ºÏ²¢¡£
-´æÔÚÒ»µãÂß¼­Í¬²½£º
-1£¬Èç¹ûobject_key²»´æÔÚ£¬Ôò´´½¨£¬È»ºóĞ´Èëobj instance
-2£¬Èç¹ûobject instanceÈ«²¿±»É¾³ıÁË£¬Ôò¿ÉÒÔÉ¾³ıobject key
-3£¬delete markerºÜÌØÊâ£¬ËüÊÇÒ»¸öinstance£¬µ«Í¬Ê±Ğ¯´øÉ¾³ı±ê¼Ç¡£
 
 ## Éı¼¶
 ¿ÉÄÜ¿¼ÂÇÌá¹©×ª»»¹¤¾ß
@@ -171,3 +121,4 @@ setattrÒÔÇ°ÓĞ¸öÎÊÌâ¾ÍÊÇºÏ²¢µÄÊ±ºòÓĞµãŞÏŞÎ£¬ÏÖÔÚÃ»ÎÊÌâÁË£¬·´Õı¾ÍÊÇ¸ÄÊôĞÔ£¬Ã»±ØÒªÓ
 
 ### ÎÊÌâ
 1£¬ aclµÈĞÅÏ¢ÈçºÎ×ª»¯Îªjson¸ñÊ½½øĞĞÍ¬²½£¿
+  attrÔÚobject instanceÖĞÓëÖ®Ç°Ò»ÑùµÄĞÎÊ½´æ´¢£¬ get_obj_stateµÄÊ±ºò¶ÁÈ¡£¬¶ÔÉÏ²ã²»¸ĞÖª¡£
