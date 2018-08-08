@@ -1,0 +1,36 @@
+1，配置静态网络
+docker network create --subnet=172.18.0.0/16 dockernet
+
+2.利用镜像创建docker虚拟机，并配置端口映射
+docker run -it --privileged=true -v /opt/sandstone/:/var/lib/ceph/ --net dockernet --ip 172.18.0.102 -p 8000:8080 cephcluster_base /bin/bash
+其中8000是宿主机端口。
+
+3，启动容器，进入容器
+docker start xx
+docker exec -it xx /bin/sh
+
+目前用的docker容器：
+MOS_bugfix
+docker run -it --privileged=true -v /home/xierui/mos/release/:/var/lib/ceph/ --net dockernet --ip 172.18.0.100 -p 8070:8080 registry.cn-hangzhou.aliyuncs.com/freelink/ceph_rgw_master:1 /bin/sh
+
+4，向容器中拷贝文件
+
+192.168.10.137使用规划：
+1，/home 编译目录
+每个人在/home下独立建目录，下载git代码，注意尽量只编译rgw部分减少资源消耗。
+执行sh config_rgw.sh; make -j8;
+
+2，docker容器
+每个人分配2个容器，用于搭建双活环境。
+容器镜像中已经包含完全的ceph程序，当更新rgw代码重新编译之后。可能需要替换如下文件：
+src/.libs/librgw.so.2.0.0  /var/lib/ceph/lib/
+src/.lib/libcls_rgw.so  /var/lib/ceph/lib/rados_classes/
+src/.lib/radosgw /var/lib/ceph/bin/
+src/.libs/radosgw-admin /var/lib/ceph/bin/
+
+3,IP地址规划
+172.18.0.0/16  xierui  映射主机端口范围：8000~8200
+172.19.0.0/16  liangxinxin 映射主机端口范围：8300~8500
+172.19.0.0/16  liaotianwei  映射主机端口范围：8500~8700
+
+
