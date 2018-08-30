@@ -15,3 +15,5 @@ foundationDB 是一个备选
 
 各种数据库介绍：
 https://m.aliyun.com/yunqi/articles/85619
+
+tidb的时间服务器对于多活的场景也是需要的，具备全局有序的时间，可以避免服务器之间时间不同步引起的时序问题。
